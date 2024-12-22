@@ -10,27 +10,42 @@ function App() {
   const [currencies, setCurrencies] = useState([]);
 
   useEffect(() => {
+    // Fetch supported currencies and their full names
+    const fetchSupportedCodes = async () => {
+      try {
+        const response = await fetch(
+          `https://v6.exchangerate-api.com/v6/6c232f2ccae7317e058555ba/codes`
+        );
+        const data = await response.json();
+        setCurrencies(data.supported_codes); // Store the array of [code, name]
+      } catch (error) {
+        console.error("Error fetching supported codes:", error);
+      }
+    };
+
+    // Fetch exchange rates for the default 'fromCurrency'
     const fetchExchangeRates = async () => {
       try {
         const response = await fetch(
           `https://v6.exchangerate-api.com/v6/6c232f2ccae7317e058555ba/latest/${fromCurrency}`
-        )
-        const data = await response.json()
-        setRates(data.conversion_rates)
-        setCurrencies(Object.keys(data.conversion_rates)); // Extracting the list of currencies
+        );
+        const data = await response.json();
+        setRates(data.conversion_rates);
       } catch (error) {
-        console.error("Error fetching exchange rates:", error)
+        console.error("Error fetching exchange rates:", error);
       }
-    }
-    fetchExchangeRates()
-  }, [fromCurrency])
+    };
+
+    fetchSupportedCodes();
+    fetchExchangeRates();
+  }, [fromCurrency]);
 
   const handleConvert = () => {
     if (rates[toCurrency]) {
-      const result = amount * rates[toCurrency]
-      setConvertedAmount(result.toFixed(2))
+      const result = amount * rates[toCurrency];
+      setConvertedAmount(result.toFixed(2));
     }
-  }
+  };
 
   return (
     <div className="container">
@@ -38,39 +53,37 @@ function App() {
       <div className="input-group">
         <input
           type="number"
-          id="from-amount"
           value={amount}
           onChange={(e) => setAmount(parseFloat(e.target.value))}
-          placeholder="Amount"/>
+          placeholder="Enter amount"
+        />
         <select
-          id="from-currency"
           value={fromCurrency}
-          onChange={(e) => setFromCurrency(e.target.value)}>
-          {currencies.map((currency) => (
-            <option key={currency} value={currency}>
-              {currency}
+          onChange={(e) => setFromCurrency(e.target.value)}
+        >
+          {currencies.map(([code, name]) => (
+            <option key={code} value={code}>
+              {name} ({code})
             </option>
           ))}
         </select>
       </div>
       <div className="input-group">
-        <input type="number" id="to-amount" value={convertedAmount} />
+        <input type="number" value={convertedAmount} readOnly />
         <select
-          id="to-currency"
           value={toCurrency}
-          onChange={(e) => setToCurrency(e.target.value)}>
-         {currencies.map((currency) => (
-            <option key={currency} value={currency}>
-              {currency}
+          onChange={(e) => setToCurrency(e.target.value)}
+        >
+          {currencies.map(([code, name]) => (
+            <option key={code} value={code}>
+              {name} ({code})
             </option>
           ))}
         </select>
       </div>
-      <button id="convert-btn" onClick={handleConvert}>
-        Convert
-      </button>
+      <button onClick={handleConvert}>Convert</button>
     </div>
-  )
+  );
 }
 
 export default App;
