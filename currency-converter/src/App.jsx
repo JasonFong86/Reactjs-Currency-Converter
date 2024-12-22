@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "./App.css";
+import viteLogo from "./assets/vite.svg";
+import reactLogo from "./assets/react.svg";
 
 function App() {
   const [amount, setAmount] = useState(1);
@@ -49,6 +51,10 @@ function App() {
 
   return (
     <div className="container">
+      <div className="logos">
+        <img src={viteLogo} alt="Vite Logo" className="logo" />
+        <img src={reactLogo} alt="React Logo" className="logo" />
+      </div>
       <h1>Currency Converter</h1>
       <div className="input-group">
         <input
